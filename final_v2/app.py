@@ -59,43 +59,50 @@ us_state_to_abbrev = {
 # =========================
 # Sidebar
 # =========================
-st.sidebar.header("Filters")
+st.sidebar.title("📊 U.S. Housing Environment Analyze Dashboard")
+st.sidebar.caption("Analyze housing prices with income, air quality, climate risk, crime rate, and insurance cost.")
+st.sidebar.divider()
 
-selected_states = st.sidebar.multiselect(
-    "Select:",
-    options=sorted(df["state"].unique()),
+# Navigation
+st.sidebar.subheader("Navigation")
+selected_page = st.sidebar.radio(
+    "Select a page",
+    [
+        "🌍 Overview",
+        "🏠 House",
+        "💵 Income",
+        "🛡️ Insurance",
+        "🌪️ Climate",
+        "🚨 Crime",
+        "💨 PM2.5"
+    ],
+    label_visibility="collapsed"
 )
 
-# =========================
-# Title
-# =========================
-st.title("🏠 Housing Environment Analyze Dashboard")
-st.markdown("""
-Analyze housing prices with income, air quality, climate risk, crime rate, and insurance cost.
-""")
+# Filters
+st.sidebar.subheader("Filters")
+selected_states = st.sidebar.multiselect(
+    "Select states to compare:",
+    options=sorted(df["state"].unique()),
+    default=[],
+    placeholder="🔍 Choose states..."
+)
 
 if len(selected_states) == 0:
-    st.subheader(" All States")
+    st.sidebar.info("🌍 Currently showing: All States")
     plot_df = df
 else:
-    st.subheader(" Selected State Comparison")
+    st.sidebar.success(f" Filter Active: Comparing {len(selected_states)} states")
     plot_df = df[df["state"].isin(selected_states)]
 
-tab_home, tab_house, tab_income, tab_insurance, tab_climate, tab_crime, tab_pm25 = st.tabs([
-    "🌎 Overview", 
-    "🏠 House",
-    "💵 Income", 
-    "🛡️ Insurance", 
-    "🌪️ Climate", 
-    "🚨 Crime",
-    "💨 PM2.5"    
-])
+st.sidebar.divider()
 
-with tab_home:
+if selected_page == "🌍 Overview":
     # =========================
     # U.S. Housing Price Distribution
     # =========================
     st.subheader("🗺️ U.S. Housing Price Distribution")
+    st.markdown("##### *From coast to coast, how extreme is the geographic divide in U.S. housing prices?*")
     map_df = plot_df.copy()
     map_df["state_code"] = map_df["state"].map(us_state_to_abbrev)
 
@@ -149,6 +156,7 @@ with tab_home:
     # Income vs. Insurance Cost
     # =========================
     st.subheader("📈 Income vs. Insurance Cost")
+    st.markdown("##### *Does earning a higher income inevitably mean paying more for risk, and how large is the real gap between income and insurance costs across different states?*")
 
     sort_option = st.radio(
         "Sort by:",
@@ -243,6 +251,7 @@ with tab_home:
     # PM2.5
     # =========================
     st.subheader("🌫️ PM2.5 Air Quality")
+    st.markdown("##### *The cost of every breath: Which state offers the safest and cleanest air quality?*")
 
     pm_sort = st.radio(
         "Sort by:",
@@ -298,9 +307,10 @@ with tab_home:
     st.plotly_chart(fig_pm, use_container_width=True)
 
     # =========================
-    # Climate Risk
+    # Integrated Risk Assessment: Climate & Crime (Combined Living Risks)
     # =========================
     st.subheader("🛡️ Integrated Risk Assessment: Climate & Crime (Combined Living Risks)")
+    st.markdown("##### *Between natural disasters and crime, which states pose the highest combined threat to their residents?*")
 
     df_risk = plot_df.copy()
     df_risk = df_risk.rename(columns={"risk": "climate"})
@@ -374,6 +384,7 @@ with tab_home:
     # Price vs Income & The Affordability Trend
     # =========================
     st.subheader("💰 Price vs Income & The Affordability Trend")
+    st.markdown("##### *Can you afford your dream home? Where in the U.S. does income actually keep up with housing costs?*")
 
     fig_scatter = px.scatter(
         plot_df, 
@@ -435,6 +446,8 @@ with tab_home:
     # Variable Correlation Heatmap
     # =========================
     st.subheader("🌡️ Variable Correlation Heatmap")
+    st.markdown("##### *How do housing prices, income, and living risks actually influence one another behind the scenes?*")
+
     corr_matrix = plot_df[["price", "income", "pm25", "risk", "crime", "insurance"]].corr()
 
     fig_corr = px.imshow(
@@ -467,11 +480,12 @@ with tab_home:
     fig_corr.update_xaxes(tickangle=-45)
 
     st.plotly_chart(fig_corr, use_container_width=True)
+    pass
 
 # ==========================================
 # 2. 🏘️ House Price 
 # ==========================================
-with tab_house:
+elif selected_page == "🏠 House":
     st.subheader("🏠 Housing Price by State")
     
     sort_house = st.radio(
@@ -496,12 +510,13 @@ with tab_house:
     
     fig_price.update_xaxes(tickmode='linear', dtick=1, tickangle=-45, tickfont=dict(size=10))
     st.plotly_chart(fig_price, use_container_width=True)
+    pass
 
 
 # ==========================================
 # 3. 💵 Income 
 # ==========================================
-with tab_income:
+elif selected_page == "💵 Income":
     st.subheader("💰 Income by State")
     
     sort_income = st.radio(
@@ -525,12 +540,13 @@ with tab_income:
     fig_income.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     fig_income.update_xaxes(tickmode='linear', dtick=1, tickangle=-45, tickfont=dict(size=10))
     st.plotly_chart(fig_income, use_container_width=True)
+    pass
 
 
 # ==========================================
 # 4. 🛡️ Insurance 
 # ==========================================
-with tab_insurance:
+elif selected_page == "🛡️ Insurance":
     st.subheader("🛡️ Insurance Cost by State")
     
     sort_ins = st.radio(
@@ -554,12 +570,13 @@ with tab_insurance:
     fig_ins.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     fig_ins.update_xaxes(tickmode='linear', dtick=1, tickangle=-45, tickfont=dict(size=10))
     st.plotly_chart(fig_ins, use_container_width=True)
+    pass
 
 
 # ==========================================
 # 5. 🌪️ Climate Risk 
 # ==========================================
-with tab_climate:
+elif selected_page == "🌪️ Climate":
     st.subheader("🌪️ Climate Risk by State")
     
     sort_risk = st.radio(
@@ -583,12 +600,13 @@ with tab_climate:
     fig_risk.update_traces(texttemplate='%{text:.0f}', textposition='outside')
     fig_risk.update_xaxes(tickmode='linear', dtick=1, tickangle=-45, tickfont=dict(size=10))
     st.plotly_chart(fig_risk, use_container_width=True)
+    pass
 
 
 # ==========================================
 # 6. 🚨 Crime 
 # ==========================================
-with tab_crime:
+elif selected_page == "🚨 Crime":
     st.subheader("🚨 Crime Rate by State")
     
     sort_crime = st.radio(
@@ -612,12 +630,13 @@ with tab_crime:
     fig_crime.update_traces(texttemplate='%{text:.0f}', textposition='outside')
     fig_crime.update_xaxes(tickmode='linear', dtick=1, tickangle=-45, tickfont=dict(size=10))
     st.plotly_chart(fig_crime, use_container_width=True)
+    pass
 
 
 # ==========================================
 # 7. 💨 PM2.5 
 # ==========================================
-with tab_pm25:
+elif selected_page == "💨 PM2.5":
     st.subheader("💨 PM2.5 by State")
     
     sort_pm25 = st.radio(
@@ -641,11 +660,11 @@ with tab_pm25:
     fig_pm25.update_traces(texttemplate='%{text:.1f}', textposition='outside')
     fig_pm25.update_xaxes(tickmode='linear', dtick=1, tickangle=-45, tickfont=dict(size=10))
     st.plotly_chart(fig_pm25, use_container_width=True)
+    pass
 
 # =========================
 # Insights
 # =========================
-st.sidebar.markdown("<div style='margin-top: 30vh;'></div>", unsafe_allow_html=True)
 st.sidebar.subheader("🧠 Insights")
 
 df_selected = plot_df.copy()
