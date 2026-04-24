@@ -692,57 +692,41 @@ import streamlit as st
 import google.generativeai as genai
 
 # ==========================================
-# 1. AI Agent 配置 (請務必保護好你的 Key)
+# AI Agent
 # ==========================================
-# ⚠️ 安全提醒：雖然是個人使用，但若要分享程式碼，請記得將 Key 移至 secrets.toml
 GOOGLE_API_KEY = "AIzaSyAlGqZlMiebt4klDy1bDY4W7abdFesSEVs" 
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# 建立 Gemini 模型實例 (建議使用穩定版 1.5-flash)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-# ==========================================
-# 2. 側邊欄 AI 助理 UI
-# ==========================================
 with st.sidebar:
     st.divider()
     st.subheader("🤖 AI Data Assistant")
 
-    # 初始化聊天紀錄 (若不存在則建立空清單)
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # 【關鍵配置】：建立一個專屬的「對話容器」，設定高度讓它可以獨立捲動
-    # 這樣對話框就不會被側邊欄最底部的 chat_input 擋住
     chat_container = st.container(height=450)
 
-    # 渲染歷史對話紀錄到容器中
     with chat_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # 聊天輸入框 (Streamlit 會自動把它釘在側邊欄的最底端)
     if prompt := st.chat_input("Ask me about the data..."):
         
-        # 【關鍵修正】：將所有的顯示與 API 邏輯「縮進」到 chat_container 裡面
         with chat_container:
-            # A. 顯示並儲存使用者訊息
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            # B. 準備數據摘要給 AI (從你目前的 plot_df 抓取)
             try:
-                # 使用 describe() 獲取描述性統計，這能給 AI 最直觀的數據背景
                 data_summary = plot_df.describe().to_string()
-                # 抓取目前的篩選狀態
                 current_filter = selected_states if 'selected_states' in locals() and selected_states else "All States"
             except NameError:
-                data_summary = "目前尚未載入任何數據資料。"
-                current_filter = "未知"
+                data_summary = "No any data load yet."
+                current_filter = "Unexpect"
 
-            # C. 建立系統 Prompt (確保繁體中文回應與修正 $ 符號問題)
             full_prompt = f"""
             You are a professional Data Science assistant.
             Here is the summary of the housing data the user is currently looking at:
@@ -759,20 +743,17 @@ with st.sidebar:
             2. Be analytical and base your answers on the provided data summary.
             """
 
-            # D. 取得並顯示 AI 回應
             with st.chat_message("assistant"):
                 with st.spinner("Thinking..."):
                     try:
                         response = model.generate_content(full_prompt)
                         ai_text = response.text
                         
-                        # 在畫面上顯示 AI 的回覆
                         st.markdown(ai_text)
                         
-                        # 儲存 AI 回應到紀錄中
                         st.session_state.messages.append({"role": "assistant", "content": ai_text})
                     except Exception as e:
-                        st.error(f"Gemini API 呼叫失敗: {e}")
+                        st.error(f"AI no reponds: {e}")
 # =========================
 # Footer
 # =========================
