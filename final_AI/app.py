@@ -59,17 +59,13 @@ us_state_to_abbrev = {
 # =========================
 # Sidebar
 # =========================
-st.sidebar.title("📊 U.S. Housing Environment Analyze Dashboard")
-st.sidebar.caption("Analyze housing prices with income, air quality, climate risk, crime rate, and insurance cost.")
-st.sidebar.divider()
-
 # Navigation
 st.sidebar.subheader("Navigation")
 selected_page = st.sidebar.radio(
     "Select a page",
     [
         "🌍 Overview",
-        "🏠 House",
+        "🏠 House Price",
         "💵 Income",
         "🛡️ Insurance",
         "🌪️ Climate",
@@ -96,6 +92,11 @@ else:
     plot_df = df[df["state"].isin(selected_states)]
 
 st.sidebar.divider()
+
+
+st.title("U.S. Housing Environment Analyze Dashboard")
+st.caption("Analyze housing prices with income, air quality, climate risk, crime rate, and insurance cost.")
+st.divider()
 
 if selected_page == "🌍 Overview":
     # =========================
@@ -757,4 +758,25 @@ with st.sidebar:
 # Footer
 # =========================
 st.markdown("---")
-st.markdown("Data Sources: Census, EPA, FEMA, Crime Data, Insurance Data")
+st.markdown("""
+### 📌 Project Overview
+
+**Problem Statement & Motivation:**
+This dashboard aims to analyze how housing prices, income, and environmental and living risks interact to affect affordability and quality of life across U.S. states.
+
+**Data Resources:**
+- **U.S. Census:** Income & Housing Data
+- **EPA:** PM2.5 (Air Quality)
+- **FEMA:** Climate Risk Data
+- **U.S. Crime Data:** Crime Rate
+- **Insurance Data:** Home Insurance Costs
+
+**Methodology:**
+- **Python:** Pandas for data cleaning & processing
+- **Plotly:** Data visualization (maps, charts, heatmaps)
+- **Streamlit:** Interactive dashboard development
+- **Analytical Setup:** Correlation Analysis (relationship between variables)
+- **Data Preprocessing:** Handling missing values using median imputation
+
+**Contributors:** Cheng-Han Chung & Yu-Tai Lee
+""")
