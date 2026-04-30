@@ -486,7 +486,7 @@ if selected_page == "🌍 Overview":
 # ==========================================
 # 2. 🏘️ House Price 
 # ==========================================
-elif selected_page == "🏠 House":
+elif selected_page == "🏠 House Price":
     st.subheader("🏠 Housing Price by State")
     
     sort_house = st.radio(
