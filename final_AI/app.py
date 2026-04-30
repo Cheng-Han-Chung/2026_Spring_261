@@ -694,8 +694,7 @@ import google.generativeai as genai
 # ==========================================
 # AI Agent
 # ==========================================
-GOOGLE_API_KEY = "AIzaSyAlGqZlMiebt4klDy1bDY4W7abdFesSEVs" 
-genai.configure(api_key=GOOGLE_API_KEY)
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 model = genai.GenerativeModel('gemini-2.5-flash')
 
